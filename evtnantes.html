@@ -169,15 +169,16 @@
 			<a class="grid-icon" :class="{ 'active': layout == 'grid'}" @click="layout = 'grid'"></a>
 		</div>
 		<h1>Événement sur Nantes</h1>
+		<input type="text" v-model="search" name="search" placeholder="Rechercher un évènement...">
 		<ul v-if="layout == 'grid'" class="grid">
-			<li v-for="e in events">
+			<li v-for="e in filteredList">
 				<img :src="e.fields.media_1" />
 				<p class="nomGrid">{{e.fields.nom}}</p>
 			</li>
 		</ul>		
 
 		<ul v-if="layout == 'list'" class="list">
-			<li v-for="e in events">
+			<li v-for="e in filteredList">
 				<img :src="e.fields.media_1" />
 				<p>{{e.fields.nom}}</p>
 				<p>{{e.fields.heure_debut}} le {{e.fields.date | formatDate}}</p>
@@ -199,7 +200,8 @@
 			
 			data: {
 				layout: 'list',
-				events:[]
+				events:[],
+				search:''
 			},
 			created(){
 				this.getInfoFrompApi();
@@ -218,6 +220,14 @@
 					 return [day, month, year].join('/');
 				}
 			},
+			computed:{
+			filteredList() {
+        return this.events.filter(event => {
+          return event.fields.nom.toLowerCase().includes(this.search.toLowerCase())
+        })
+    }
+}
+      ,
 			methods: {
 				getInfoFrompApi(){
 					axios(apiURL).then(response => (this.events=response.data.records));
